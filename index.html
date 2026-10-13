@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="id" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jelajah-Yuk! - Platform Perencanaan & Analisis Pendakian Gunung Indonesia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            950: '#03120b',
+                            900: '#071d13',
+                            800: '#0b291a',
+                            700: '#113e28',
+                            muted: '#7a9e8d'
+                        },
+                        amber: {
+                            gold: '#ffb703',
+                            bright: '#f7b731'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --forest-deep: #03120b;
+            --forest-mid: #0b291a;
+            --forest-light: #173d24;
+            --leaf: #36b37e;
+            --lime: #c8f169;
+            --amber: #ffb703;
+            --sun: #ffd166;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background:
+                radial-gradient(circle at 15% 15%, rgba(200, 241, 105, 0.08), transparent 28%),
+                radial-gradient(circle at 85% 20%, rgba(255, 183, 3, 0.08), transparent 30%),
+                linear-gradient(135deg, #03120b 0%, #071d13 45%, #102b19 75%, #03120b 100%);
+            background-attachment: fixed;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        .main-card-container {
+            position: relative;
+            overflow: hidden;
+            background:
+                linear-gradient(135deg, rgba(9, 34, 21, 0.98) 0%, rgba(14, 53, 31, 0.97) 48%, rgba(24, 64, 35, 0.95) 100%);
+            border: 1px solid rgba(200, 241, 105, 0.18);
+            border-radius: 1.5rem;
+            box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+        }
+
+        .main-card-container::before {
+            content: '';
+            position: absolute;
+            inset: -40% auto auto -10%;
+            width: 240px;
+            height: 240px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(255, 209, 102, 0.11), transparent 68%);
+            pointer-events: none;
+        }
+
+        .inner-box {
+            background: linear-gradient(145deg, rgba(8, 34, 20, 0.96), rgba(20, 61, 35, 0.9));
+            border: 1px solid rgba(200, 241, 105, 0.12);
+            border-radius: 1rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 10px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        .inner-box-interactive {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, rgba(8, 34, 20, 0.97), rgba(26, 70, 39, 0.9));
+            border: 1px solid rgba(200, 241, 105, 0.12);
+            border-radius: 1rem;
+            transition: transform 0.45s cubic-bezier(.22, 1, .36, 1), box-shadow 0.45s ease, border-color 0.45s ease;
+            cursor: pointer;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .inner-box-interactive::after {
+            content: '';
+            position: absolute;
+            inset: auto -35px -55px auto;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 183, 3, 0.18), transparent 70%);
+            pointer-events: none;
+            transition: transform 0.5s ease;
+        }
+
+        .inner-box-interactive:hover {
+            border-color: rgba(255, 209, 102, 0.5);
+            transform: translateY(-6px) scale(1.012);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(200, 241, 105, 0.05);
+        }
+
+        .inner-box-interactive:hover::after {
+            transform: scale(1.35);
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #c8f169 0%, #ffd166 46%, #ffb703 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        /* Supersmooth Popup Transitions for Pages & Steps */
+        .tab-content.active {
+            display: block;
+            animation: pagePop 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .wizard-step:not(.hidden) {
+            animation: pagePop 0.65s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .stagger-in {
+            animation: cardRise 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes pagePop {
+            0% {
+                opacity: 0;
+                transform: translateY(32px) scale(0.96);
+                filter: blur(6px);
+            }
+            60% {
+                opacity: 0.95;
+                filter: blur(0px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+                filter: blur(0px);
+            }
+        }
+
+        @keyframes cardRise {
+            0% { opacity: 0; transform: translateY(20px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes modalIn {
+            0% { opacity: 0; transform: scale(0.90) translateY(24px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-panel-in {
+            animation: modalIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Foto Profil Ukuran Kecil & Pas */
+        .photo-upload {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            max-width: 100px;
+            max-height: 100px;
+            margin: 0 auto;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            background:
+                linear-gradient(145deg, #0b291a, #183d24) padding-box,
+                linear-gradient(135deg, #c8f169, #ffd166, #ffb703, #36b37e) border-box;
+            box-shadow: 0 0 0 4px rgba(200, 241, 105, 0.05), 0 10px 24px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+            display: block;
+        }
+
+        .photo-upload:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 0 0 6px rgba(255, 209, 102, 0.08), 0 14px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .photo-upload img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            display: block;
+        }
+
+        .photo-overlay {
+            position: absolute;
+            inset: auto 0 0 0;
+            padding: 2px 0;
+            background: rgba(3, 18, 11, 0.75);
+            color: #fff;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            text-align: center;
+            backdrop-filter: blur(2px);
+        }
+
+        #creatorPhotoInput {
+            display: none;
+        }
+
+        button.bg-gradient-to-r {
+            background-image: linear-gradient(135deg, #c8f169 0%, #ffd166 47%, #ffb703 100%) !important;
+            box-shadow: 0 10px 28px rgba(255, 183, 3, 0.18);
+            transition: transform 0.35s cubic-bezier(.22, 1, .36, 1), filter 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        button.bg-gradient-to-r:hover {
+            transform: translateY(-2px);
+            filter: saturate(1.06) brightness(1.04);
+            box-shadow: 0 14px 34px rgba(255, 183, 3, 0.25);
+        }
+
+        .nav-btn {
+            transition: all 0.35s cubic-bezier(.22, 1, .36, 1);
+        }
+
+        .nav-btn.bg-forest-800 {
+            background: linear-gradient(135deg, rgba(54, 179, 126, 0.28), rgba(255, 183, 3, 0.16)) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 7px 18px rgba(0,0,0,0.12);
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="relative min-h-screen flex flex-col justify-between">
+
+    <!-- Background Particle Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="sticky top-0 z-50 bg-gradient-to-r from-[#03120b]/95 via-[#0b291a]/95 to-[#173d24]/95 backdrop-blur-md border-b border-amber-gold/20">
+        <div class="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-gold via-amber-bright to-lime-300 flex items-center justify-center text-forest-950 font-black shadow-lg ring-2 ring-amber-gold/30">
+                    <i data-lucide="mountain" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <span class="text-xl font-extrabold text-white block leading-none">Jelajah-Yuk!</span>
+                    <span class="text-[9px] tracking-wider text-amber-gold uppercase font-bold">SALAM RIMBA! BRAMASTYA</span>
+                </div>
+            </div>
+
+            <!-- Nav Tabs -->
+            <nav class="hidden md:flex items-center space-x-2 bg-[#071d13] p-1.5 rounded-full border border-amber-gold/20">
+                <button onclick="switchTab('home')" id="nav-home" class="nav-btn px-5 py-2 rounded-full text-xs font-bold transition-all bg-forest-800 text-amber-gold border border-amber-gold/30 flex items-center space-x-2">
+                    <i data-lucide="home" class="w-3.5 h-3.5"></i>
+                    <span>Beranda</span>
+                </button>
+                <button onclick="switchTab('wizard')" id="nav-wizard" class="nav-btn px-5 py-2 rounded-full text-xs font-bold transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                    <i data-lucide="compass" class="w-3.5 h-3.5"></i>
+                    <span>Perencanaan Hiking</span>
+                </button>
+                <button onclick="switchTab('directory')" id="nav-directory" class="nav-btn px-5 py-2 rounded-full text-xs font-bold transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                    <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
+                    <span>Katalog Gunung</span>
+                </button>
+                <button onclick="switchTab('creator')" id="nav-creator" class="nav-btn px-5 py-2 rounded-full text-xs font-bold transition-all text-slate-300 hover:text-white flex items-center space-x-2">
+                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                    <span>Pembuat</span>
+                </button>
+            </nav>
+
+            <!-- CTA -->
+            <button onclick="switchTab('wizard')" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-gold to-amber-bright text-forest-950 font-bold text-xs tracking-wider uppercase hover:brightness-110 transition-all flex items-center space-x-2 shadow-lg">
+                <span>MULAI RENCANA</span>
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="relative z-10 max-w-6xl mx-auto px-4 py-8 flex-grow w-full">
+
+        <!-- ==================== TAB 1: BERANDA ==================== -->
+        <section id="tab-home" class="tab-content active">
+            <div class="main-card-container p-8 md:p-14">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                    <!-- Left Section -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <div class="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-forest-800 border border-amber-gold/30 text-[11px] font-bold text-amber-gold">
+                            <span class="w-2 h-2 rounded-full bg-amber-gold animate-pulse"></span>
+                            <span>SALAM RIMBA! BRAMASTYA &bull; SIMAKSI DIGITAL JAVA SPECIALIST</span>
+                        </div>
+
+                        <h1 class="text-4xl sm:text-5xl font-extrabold text-white leading-tight drop-shadow-[0_8px_30px_rgba(0,0,0,0.18)]">
+                            Eksplorasi Gunung Jawa Dengan <span class="font-serif italic font-normal gradient-text">Presisi Logistik Total</span>
+                        </h1>
+
+                        <p class="text-sm text-forest-muted leading-relaxed max-w-xl">
+                            Rencanakan pendakian gunung Jawa Tengah, Jawa Timur, dan Jawa Barat. Kalkulasi otomatis estimasi SIMAKSI, kebutuhan air & logistik makanan, rekomendasi ukuran Carrier, serta rute navigasi dari kota asalmu.
+                        </p>
+
+                        <div class="flex flex-wrap gap-4 pt-2">
+                            <button onclick="switchTab('wizard')" class="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-gold to-amber-bright text-forest-950 font-bold text-xs uppercase tracking-wider flex items-center space-x-2 shadow-md">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                                <span>Buat Rencana Pendakian</span>
+                            </button>
+                            <button onclick="switchTab('directory')" class="px-6 py-3.5 rounded-xl bg-forest-800 text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider border border-amber-gold/20 flex items-center space-x-2">
+                                <i data-lucide="list" class="w-4 h-4 text-amber-gold"></i>
+                                <span>Lihat Database Gunung</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Section 4 Stat Cards -->
+                    <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                        <div class="inner-box p-5 text-center space-y-1">
+                            <div class="text-3xl font-extrabold text-amber-gold">60+</div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300">KOTA ASAL JAWA</div>
+                            <div class="text-[10px] text-forest-muted">Sistem rute & BBM presisi</div>
+                        </div>
+                        <div class="inner-box p-5 text-center space-y-1">
+                            <div class="text-3xl font-extrabold text-amber-gold">100%</div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300">SIMAKSI ACCURATE</div>
+                            <div class="text-[10px] text-forest-muted">Tarif PNBP Weekday/Weekend</div>
+                        </div>
+                        <div class="inner-box p-5 text-center space-y-1">
+                            <div class="text-2xl font-extrabold text-amber-gold">Akurat</div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300">SUMBER AIR JALUR</div>
+                            <div class="text-[10px] text-forest-muted">Rincian air tiap pos</div>
+                        </div>
+                        <div class="inner-box p-5 text-center space-y-1">
+                            <div class="text-2xl font-extrabold text-amber-gold">Otomatis</div>
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-300">CHECKLIST & WORKOUT</div>
+                            <div class="text-[10px] text-forest-muted">Jadwal latihan H-14</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 2: WIZARD PLANNING ==================== -->
+        <section id="tab-wizard" class="tab-content">
+            <!-- STEP 1 INPUT FORM -->
+            <div id="wizard-step-1" class="wizard-step main-card-container p-8 max-w-4xl mx-auto space-y-6">
+                <div class="border-b border-amber-gold/20 pb-4">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i data-lucide="sliders" class="text-amber-gold w-5 h-5"></i>
+                        <span>Langkah 1: Mode Pendakian & Data Fisik</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Mode Pendakian</label>
+                        <select id="hikingMode" onchange="handleModeChange()" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                            <option value="solo">Individu / Solo (1 Orang)</option>
+                            <option value="group">Kelompok / Rombongan</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Jumlah Anggota Tim</label>
+                        <input type="number" id="groupCount" value="1" min="1" disabled class="w-full bg-forest-950/50 border border-forest-800 rounded-xl px-4 py-2.5 text-sm text-slate-400 focus:outline-none disabled:opacity-50">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Tinggi Badan (cm)</label>
+                        <input type="number" id="userHeight" value="170" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Berat Badan (kg)</label>
+                        <input type="number" id="userWeight" value="65" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Durasi Pendakian</label>
+                        <select id="hikingDuration" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                            <option value="tektok">Tektok (1 Hari - Daypack)</option>
+                            <option value="2d1n" selected>2 Hari 1 Malam (2D1N)</option>
+                            <option value="3d2n">3 Hari 2 Malam (3D2N)</option>
+                            <option value="4d3n">4 Hari 3 Malam (4D3N)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Tanggal Rencana Pendakian</label>
+                        <input type="date" id="hikingDate" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4">
+                    <button type="button" onclick="goToStep(2)" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-gold to-amber-bright text-forest-950 font-bold text-xs uppercase flex items-center space-x-2 cursor-pointer z-20">
+                        <span>Lanjut ke Langkah 2</span>
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2 INPUT FORM -->
+            <div id="wizard-step-2" class="wizard-step main-card-container p-8 max-w-4xl mx-auto space-y-6 hidden">
+                <div class="border-b border-amber-gold/20 pb-4">
+                    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
+                        <i data-lucide="map-pin" class="text-amber-gold w-5 h-5"></i>
+                        <span>Langkah 2: Destinasi, Jalur & Transportasi</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">1. Pilih Gunung Utama</label>
+                        <select id="selectedMountain" onchange="handleMountainSelection()" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">2. Pilih Jalur Resmi Pendakian</label>
+                        <select id="selectedRoute" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                            <!-- Populated dynamically based on selected mountain -->
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Kota Asal Keberangkatan</label>
+                        <select id="originCity" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-xs font-bold text-amber-gold uppercase">Moda Transportasi Utama</label>
+                        <select id="transportMode" class="w-full bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none">
+                            <option value="motor">Sepeda Motor (BBM Hemat - Presisi)</option>
+                            <option value="mobil">Mobil Rombongan (Split Cost)</option>
+                            <option value="kereta">Kereta Api / Bus Ekonomi</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-between pt-4 relative z-20">
+                    <button type="button" onclick="goToStep(1)" class="px-6 py-3 rounded-xl bg-forest-800 text-white font-bold text-xs uppercase cursor-pointer">Kembali</button>
+                    <!-- Fixing button click ability with type="button" and proper positioning -->
+                    <button type="button" id="btnCalculateReport" onclick="calculateAndShowReport()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-gold to-amber-bright text-forest-950 font-bold text-xs uppercase flex items-center space-x-2 cursor-pointer shadow-lg hover:brightness-110 active:scale-95 transition-all">
+                        <span>Lihat Laporan Ekspedisi</span>
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3 RESULT REPORT -->
+            <div id="wizard-step-3" class="wizard-step max-w-6xl mx-auto space-y-6 hidden">
+                <!-- 4 Top Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="inner-box p-5 space-y-1">
+                        <div class="text-[10px] font-bold text-amber-gold uppercase tracking-wider">ESTIMASI SIMAKSI (Mulai dari)</div>
+                        <div id="reportTotalSimaksi" class="text-2xl font-extrabold text-white">Rp 20.000</div>
+                        <div id="reportSimaksiNote" class="text-[10px] text-forest-muted">1 Pendaki (SIMAKSI Resmi Basecamp)</div>
+                    </div>
+
+                    <div class="inner-box p-5 space-y-1">
+                        <div class="text-[10px] font-bold text-amber-gold uppercase tracking-wider">UKURAN TAS IDEAL</div>
+                        <div id="reportCarrierSize" class="text-2xl font-extrabold text-white">Carrier 45-60L</div>
+                        <div id="reportCarrierNote" class="text-[10px] text-forest-muted">Rekomendasi TB 170cm / BB 65kg</div>
+                    </div>
+
+                    <div class="inner-box p-5 space-y-1">
+                        <div class="text-[10px] font-bold text-amber-gold uppercase tracking-wider">KEBUTUHAN AIR PERSONAL</div>
+                        <div id="reportWaterTotal" class="text-2xl font-extrabold text-white">4.5 Liter</div>
+                        <div id="reportWaterNote" class="text-[10px] text-forest-muted">Estimasi hidrasi selama ekspedisi</div>
+                    </div>
+
+                    <div class="inner-box p-5 space-y-1">
+                        <div class="text-[10px] font-bold text-amber-gold uppercase tracking-wider">HITUNG MUNDUR KEBERANGKATAN</div>
+                        <div id="reportCountdown" class="text-2xl font-extrabold text-amber-gold">H-0 Hari</div>
+                        <div id="reportCountdownSub" class="text-[10px] text-forest-muted">Menyesuaikan tanggal pemberangkatan</div>
+                    </div>
+                </div>
+
+                <!-- Main Split Layout -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Left Column -->
+                    <div class="lg:col-span-7 space-y-6">
+                        <!-- Navigation Card -->
+                        <div class="inner-box p-5 flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 rounded-xl bg-amber-gold/10 border border-amber-gold/30 flex items-center justify-center text-amber-gold">
+                                    <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <div class="text-[10px] font-bold text-amber-gold uppercase tracking-wider">RUTE MENUJU BASECAMP</div>
+                                    <div id="reportBasecampName" class="text-base font-bold text-white">Gunung Lawu via Cemoro Sewu</div>
+                                    <div id="reportRouteDetail" class="text-xs text-forest-muted">Dari Madiun menuju Basecamp resmi</div>
+                                </div>
+                            </div>
+                            <button onclick="openGoogleMaps()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-gold to-amber-bright text-forest-950 font-bold text-xs uppercase flex items-center space-x-1.5 shadow-md">
+                                <span>BUKA GOOGLE MAPS</span>
+                                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+
+                        <!-- 1. Rancangan Kegiatan Fisik Berdasarkan Hitung Mundur -->
+                        <div class="inner-box p-6 space-y-4">
+                            <div class="flex items-center justify-between border-b border-forest-800 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="activity" class="text-amber-gold w-5 h-5"></i>
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Rancangan Fisik Pra-Pendakian</h3>
+                                </div>
+                                <span id="workoutBadge" class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-amber-gold/20 text-amber-gold border border-amber-gold/30">H-14 LATIHAN</span>
+                            </div>
+
+                            <p id="workoutSummaryText" class="text-xs text-slate-300 leading-relaxed">
+                                Program latihan rutin disesuaikan dengan sisa waktu hitung mundur menuju tanggal keberangkatan Anda.
+                            </p>
+
+                            <div id="workoutScheduleContainer" class="space-y-2.5 pt-1">
+                                <!-- Dynamic Physical Workout Routine -->
+                            </div>
+                        </div>
+
+                        <!-- Terrain & Water Analysis Card -->
+                        <div class="inner-box p-6 space-y-4">
+                            <div class="flex items-center space-x-2 border-b border-forest-800 pb-3">
+                                <i data-lucide="droplet" class="text-amber-gold w-4 h-4"></i>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Karakteristik Medan & Titik Air Jalur</h3>
+                            </div>
+
+                            <div class="space-y-2">
+                                <span class="text-[10px] font-bold text-amber-gold uppercase block">KARAKTERISTIK MEDAN</span>
+                                <p id="reportTerrainText" class="text-xs text-slate-200 leading-relaxed font-medium">--</p>
+                            </div>
+
+                            <div class="space-y-2 pt-2 border-t border-forest-800/80">
+                                <span class="text-[10px] font-bold text-amber-gold uppercase block">RINCIAN KETERSEDIAAN AIR TIAP POS</span>
+                                <div id="reportWaterList" class="space-y-2 text-xs">
+                                    <!-- Dynamic water list -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="lg:col-span-5 space-y-6">
+                        <!-- 2. Perencanaan Barang Bawaan Kelompok -->
+                        <div class="inner-box p-6 space-y-4">
+                            <div class="flex items-center justify-between border-b border-forest-800 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="users" class="text-amber-gold w-5 h-5"></i>
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Logistik Kelompok</h3>
+                                </div>
+                                <span id="groupSizeBadge" class="text-[10px] font-bold text-amber-gold bg-forest-950 px-2 py-0.5 rounded border border-amber-gold/20">1 Anggota</span>
+                            </div>
+
+                            <div id="groupEquipmentContainer" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+                                <!-- Dynamic Group Gear Distribution -->
+                            </div>
+                        </div>
+
+                        <!-- Checklist Personal Equipment -->
+                        <div class="inner-box p-6 space-y-4">
+                            <div class="flex items-center justify-between border-b border-forest-800 pb-3">
+                                <div class="flex items-center space-x-2">
+                                    <i data-lucide="list-checks" class="text-amber-gold w-4 h-4"></i>
+                                    <h3 class="text-sm font-bold text-white uppercase tracking-wider">Checklist Peralatan Pribadi</h3>
+                                </div>
+                                <span id="checklistProgressText" class="text-xs font-bold text-amber-gold">0% Selesai</span>
+                            </div>
+
+                            <div id="checklistContainer" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                                <!-- Dynamic checkboxes -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-start pt-2">
+                    <button onclick="goToStep(2)" class="px-5 py-2.5 rounded-xl bg-forest-800 text-white font-bold text-xs uppercase flex items-center space-x-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        <span>Ubah Rencana</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 3: KATALOG GUNUNG ==================== -->
+        <section id="tab-directory" class="tab-content">
+            <div class="main-card-container p-8 space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-amber-gold/20 pb-4">
+                    <div>
+                        <h2 class="text-xl font-bold text-white">Katalog Gunung Indonesia</h2>
+                        <p class="text-xs text-forest-muted">Klik kartu gunung untuk melihat rincian jalur pendakian resmi & titik air lengkap.</p>
+                    </div>
+                    <div class="flex gap-3 items-center flex-wrap">
+                        <input type="text" id="searchInput" oninput="renderDirectory()" placeholder="Cari nama gunung..." class="bg-forest-950 border border-amber-gold/30 rounded-xl px-4 py-2 text-xs text-white focus:outline-none">
+                        <button onclick="triggerDirectReport()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-gold to-amber-bright text-forest-950 font-bold text-xs uppercase tracking-wider shadow-md hover:brightness-110 transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
+                            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                            <span>Lihat Laporan Ekspedisi</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 Columns Cards Grid Nama-Nama Gunung Utama -->
+                <div id="directoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Dynamic mountain cards -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TAB 4: CREATOR ==================== -->
+        <section id="tab-creator" class="tab-content">
+            <div class="main-card-container p-8 max-w-md mx-auto text-center space-y-5">
+                <input type="file" id="creatorPhotoInput" accept="image/*" onchange="handleCreatorPhoto(event)">
+                <!-- Foto Profil Ukuran Proporsional & Pas -->
+                <label for="creatorPhotoInput" class="photo-upload" aria-label="Ganti foto pembuat">
+                    <img id="creatorPhotoPreview" alt="Foto pembuat" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%230b291a'/%3E%3Cstop offset='1' stop-color='%2336b37e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='120' height='120' fill='url(%23g)'/%3E%3Ccircle cx='60' cy='46' r='20' fill='%23ffd166' opacity='.95'/%3E%3Cpath d='M25 105c5-22 18-33 35-33s30 11 35 33' fill='%23ffb703' opacity='.9'/%3E%3C/svg%3E">
+                    <span class="photo-overlay">GANTI FOTO</span>
+                </label>
+                <div>
+                    <h2 class="text-lg font-bold gradient-text">Galuh Ayudya Hapsari</h2>
+                    <p class="text-[11px] text-amber-gold uppercase font-bold tracking-wider mt-0.5">SALAM RIMBA! BRAMASTYA</p>
+                </div>
+
+                <!-- Social Media Links -->
+                <div class="flex items-center justify-center gap-3 pt-1">
+                    <a href="https://instagram.com/galuhh.ayu" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-forest-950 border border-amber-gold/30 text-amber-gold text-xs font-semibold hover:bg-forest-800 transition-all flex items-center space-x-1.5">
+                        <i data-lucide="instagram" class="w-3.5 h-3.5"></i>
+                        <span>@galuhh.ayu</span>
+                    </a>
+                    <a href="https://tiktok.com/@ayudya.g" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-xl bg-forest-950 border border-amber-gold/30 text-amber-gold text-xs font-semibold hover:bg-forest-800 transition-all flex items-center space-x-1.5">
+                        <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                        <span>ayudya.g</span>
+                    </a>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-gradient-to-br from-forest-950/80 via-forest-800/70 to-amber-gold/10 border border-amber-gold/15">
+                    <p class="text-xs text-forest-muted leading-relaxed italic">
+                        "Platform Jelajah-Yuk! dibangun khusus untuk membantu pendaki gunung Indonesia melakukan analisis logistik, estimasi SIMAKSI, dan manajemen air secara presisi."
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MODAL DETAIL JALUR GUNUNG DARI KATALOG -->
+    <div id="mountainModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+        <div id="mountainModalPanel" class="main-card-container max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-5 border border-amber-gold/30">
+            <div class="flex items-center justify-between border-b border-forest-800 pb-3">
+                <div>
+                    <h3 id="modalMtnTitle" class="text-xl font-bold text-white">Nama Gunung</h3>
+                    <span id="modalMtnSub" class="text-xs text-amber-gold font-semibold">0000 MDPL</span>
+                </div>
+                <button onclick="closeModal()" class="p-2 rounded-full bg-forest-950 text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div id="modalMtnBody" class="space-y-4 text-xs">
+                <!-- Dynamic Content Jalur Lengkap -->
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="relative z-10 bg-[#03120b] border-t border-amber-gold/10 py-6 text-center text-xs text-forest-muted">
+        <p>&copy; 2026 Jelajah-Yuk! &bull; Galuh Ayudya Hapsari &bull; SALAM RIMBA! BRAMASTYA</p>
+    </footer>
+
+    <!-- JAVASCRIPT CORE LOGIC -->
+    <script>
+        const MASTER_GUNUNG = [
+            {
+                id: 'lawu',
+                name: 'Gunung Lawu',
+                height: 3265,
+                region: 'JATIM / JATENG',
+                priceRange: 'Mulai dari Rp 20.000',
+                waterSummary: 'TERBATAS / SENDANG DRAJAT',
+                routes: [
+                    {
+                        name: 'Jalur Pendakian via Cemoro Sewu (Magetan, Jawa Timur)',
+                        time: '6–7 Jam',
+                        terrain: 'Jalur didominasi oleh susunan batuan andesit yang tertata rapi mirip anak tangga buatan. Cenderung menanjak terus secara konstan tanpa banyak bonus jalur landai, jalurnya sangat jelas dan aman dari risiko tersesat.',
+                        water: [
+                            'Sendang Macan (sebelum Pos I)',
+                            'Sendang Drajat (di dekat area puncak/Hargo Dalem)'
+                        ]
+                    },
+                    {
+                        name: 'Jalur Pendakian via Cemoro Kandang (Karanganyar, Jawa Tengah)',
+                        time: '7–8 Jam',
+                        terrain: 'Didominasi oleh tanah padat dan akar pohon, lebih landai, dan berliku-liku mengikuti punggungan bukit. Melewati hutan lebat dan teduh.',
+                        water: [
+                            'Mata air/aliran air di pos bawah hingga menengah',
+                            'Sendang Drajat di area puncak'
+                        ]
+                    },
+                    {
+                        name: 'Jalur Pendakian via Candi Cetho (Karanganyar, Jawa Tengah)',
+                        time: '8–10 Jam',
+                        terrain: 'Melewati candi purbakala dan perkebunan warga. Suguhan pemandangan padang savana yang sangat luas dan indah setelah Bulak Peperangan.',
+                        water: [
+                            'Aliran sungai kecil di dekat awal pendakian (setelah Candi Kethek)',
+                            'Mata air/pipa di sekitar Pos III dan mendekati Pos IV (Wajib isi di Pos III)'
+                        ]
+                    },
+                    {
+                        name: 'Jalur Pendakian via Singolangu (Magetan, Jawa Timur)',
+                        time: '8–9 Jam',
+                        terrain: 'Jalur bersejarah/tertua Prabu Brawijaya V. Medan dari jalan tanah perkampungan, hutan tropis lebat, hingga jalur berbatu & petilasan Majapahit.',
+                        water: [
+                            'Mata air alami di sekitar Pos II dan Pos IV'
+                        ]
+                    }
+                ],
+                notes: 'Sumber air utama abadi di dekat area puncak (Hargo Dalem) adalah Sendang Drajat. Air bersih matang juga tersedia di Warung Mbok Yem.'
+            },
+            {
+                id: 'merbabu',
+                name: 'Gunung Merbabu',
+                height: 3145,
+                region: 'JATENG',
+                priceRange: 'Mulai dari Rp 25.000 - Rp 35.000',
+                waterSummary: 'JALUR KERING (Kecuali Wekas)',
+                routes: [
+                    {
+                        name: 'Jalur Pendakian via Selo (Boyolali)',
+                        time: '6–7 Jam',
+                        terrain: 'Awalnya hutan pinus landai, berubah menjadi jalur tanah terbuka menanjak konstan di tengah hamparan savana luas (Sabana I & II). Angin kencang.',
+                        water: [
+                            'TIDAK TERSEDIA di sepanjang jalur pendakian. Wajib membawa cadangan air yang cukup dari basecamp.'
+                        ]
+                    },
+                    {
+                        name: 'Jalur Pendakian via Thekelan (Getasan, Semarang)',
+                        time: '7–8 Jam',
+                        terrain: 'Didominasi tanah padat, akar pohon besar, serta batuan vulkanik. Terdapat tanjakan ekstrem Jembatan Setan di dekat puncak.',
+                        water: [
+                            'Pos Air (mata air alami menyimpang dari jalur utama, debit tergantung musim).'
+                        ]
+                    },
+                    {
+                        name: 'Jalur Pendakian via Wekas (Grabag, Magelang)',
+                        time: '5–6 Jam',
+                        terrain: 'Makadam perkampungan, hutan pinus & ladang. Jalur tanah padat tercepat menuju area perkemahan Kungkulan/Pos II.',
+                        water: [
+                            'Sumber air melimpah dari aliran pipa mata air bersih di dekat area perkemahan Pos II (Kungkulan).'
+                        ]
+                    },
+                    {
+                        name: 'Jalur Pendakian via Suwanting (Tegalrejo, Magelang)',
+                        time: '8–9 Jam',
+                        terrain: 'Trek menanjak secara ekstrem dan tanpa ampun sejak pos awal. Tanah gembur, jalur sempit punggungan bukit & ilalang tinggi.',
+                        water: [
+                            'Sangat minim atau bahkan tidak ada. Wajib membawa persediaan air melimpah dari basecamp.'
+                        ]
+                    }
+                ],
+                notes: 'Sebagian besar jalur Gunung Merbabu (kecuali Wekas) tidak memiliki sumber air yang mudah diakses di tengah pendakian.'
+            },
+            {
+                id: 'prau',
+                name: 'Gunung Prau',
+                height: 2590,
+                region: 'JATENG',
+                priceRange: 'Mulai dari Rp 30.000',
+                waterSummary: 'JALUR KERING (Kecuali Wates)',
+                routes: [
+                    {
+                        name: 'Jalur Pendakian via Patak Banteng (Wonosobo)',
+                        time: '2.5–4 Jam',
+                        terrain: 'Jalur tercepat & paling favorit. Tanjakan terjal undakan batu dan tanah padat.',
+                        water: ['Tidak ada sumber air alami di sepanjang jalur. Wajib bawa dari basecamp.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Dwarawati (Wonosobo)',
+                        time: '2.5–3 Jam',
+                        terrain: 'Jalur singkat melintasi jalan setapak tanah, perkebunan warga, dan situs candi Hindu kuno.',
+                        water: ['Sangat minim. Wajib membawa cadangan air dari basecamp.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Kalilembu (Wonosobo)',
+                        time: '3.2 Jam',
+                        terrain: 'Cenderung landai dengan pemandangan terasering perkebunan warga yang indah.',
+                        water: ['Tidak terdapat sumber air bersih di tengah jalur.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Dieng (Wonosobo)',
+                        time: '3–4 Jam',
+                        terrain: 'Trek lebih landai dan santai melintasi ladang sayur penduduk dan bukit terbuka.',
+                        water: ['Tidak tersedia di sepanjang jalur.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Wates (Temanggung / Batang)',
+                        time: '3–3.5 Jam',
+                        terrain: 'Melintasi kawasan hutan rimba yang lebat, hutan cemara, panjang trek 4,7 km.',
+                        water: ['Memiliki akses sumber air bersih di sekitar area jalurnya sebelum menuju kawasan puncak.']
+                    }
+                ],
+                notes: 'Hanya jalur Wates yang memiliki mata air aktif. Di area puncak terkadang ada warung tenda musiman.'
+            },
+            {
+                id: 'sindoro',
+                name: 'Gunung Sindoro',
+                height: 3153,
+                region: 'JATENG',
+                priceRange: 'Mulai dari Rp 20.000 - Rp 25.000',
+                waterSummary: 'SANGAT KERING',
+                routes: [
+                    {
+                        name: 'Jalur Pendakian via Kledung (Temanggung)',
+                        time: '6–7 Jam',
+                        terrain: 'Rute utama teramai. Trek awal perkebunan landai, berubah menjadi tanah berpasir, batuan vulkanik & angin kencang.',
+                        water: ['Tidak tersedia di sepanjang jalur. Wajib membawa dari basecamp.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Ndoro Arum (Jalur Naga)',
+                        time: '7–8 Jam',
+                        terrain: 'Punggungan sempit terjal dengan jurang di sisi kiri dan kanan.',
+                        water: ['Tidak ada sumber air di sepanjang rute.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Bansari (Temanggung)',
+                        time: '6–7 Jam',
+                        terrain: 'Pemandangan asri hijau melintasi kawasan hutan dan perkebunan.',
+                        water: ['Tidak tersedia sumber air bersih di tengah jalur.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Sigedang (Wonosobo)',
+                        time: '6–7 Jam',
+                        terrain: 'Melintasi hamparan kebun teh hijau yang sangat dingin sebelum masuk hutan.',
+                        water: ['Wajib mengisi penuh botol/water bladder di basecamp.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Bedakah & Alang-Alang Sewu',
+                        time: '6–8 Jam',
+                        terrain: 'Suasana tenang, sepi, bervariasi dari perkebunan hingga punggungan bukit.',
+                        water: ['Sumber air bersih tidak tersedia.']
+                    }
+                ],
+                notes: 'Gunung Sindoro merupakan gunung berapi yang minim sumber air alami di sepanjang jalur pendakiannya.'
+            },
+            {
+                id: 'sumbing',
+                name: 'Gunung Sumbing',
+                height: 3371,
+                region: 'JATENG',
+                priceRange: 'Mulai dari Rp 20.000 - Rp 25.000',
+                waterSummary: 'SANGAT KERING',
+                routes: [
+                    {
+                        name: 'Jalur Pendakian via Garung (Wonosobo)',
+                        time: '8–9 Jam',
+                        terrain: 'Populer, jelas, didominasi tanah padat, akar pohon, dan batuan vulkanik.',
+                        water: ['Tidak ada sumber air alami.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Mangli / Desa Butuh (Nepal Van Java)',
+                        time: '6–7 Jam',
+                        terrain: 'Menyuguhkan pemandangan desa tertinggi dengan trek awal terjal.',
+                        water: ['Tidak ada sumber air alami yang aktif.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Gajah Mungkur (Kalikajar, Wonosobo)',
+                        time: '6–7 Jam',
+                        terrain: 'Terkenal dengan keindahan panorama sunset di punggungan jalur.',
+                        water: ['Tidak tersedia sumber air alami.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Bowongso (Wonosobo)',
+                        time: '7–8 Jam',
+                        terrain: 'Cenderung lebih tenang, asri, dan landai.',
+                        water: ['Sangat minim / tidak ada.']
+                    },
+                    {
+                        name: 'Jalur Pendakian via Cepit Parakan / Banaran',
+                        time: '7 Jam',
+                        terrain: 'Hutan asri alami, sepi dari keramaian dengan vegetasi padat.',
+                        water: ['Tidak ada mata air yang bisa diandalkan.']
+                    }
+                ],
+                notes: 'Gunung Sumbing kering dan tidak memiliki sumber air alami di pos-pos pendakiannya. Bawa 2-3 Liter per orang.'
+            },
+            {
+                id: 'slamet',
+                name: 'Gunung Slamet',
+                height: 3428,
+                region: 'JATENG',
+                priceRange: 'Mulai dari Rp 25.000',
+                waterSummary: 'TERBATAS PER POS',
+                routes: [
+                    {
+                        name: 'Jalur Bambangan (Purbalingga)',
+                        time: '9 Pos / 9–11 Jam',
+                        terrain: 'Trek tanah padat, akar pohon, serta batuan vulkanik menanjak terjal.',
+                        water: ['Pos 2: Musiman', 'Pos 5 (Samyang Rangkah): Mata air utama permanen (aliran kecil).']
+                    },
+                    {
+                        name: 'Jalur Permadi / Guci (Tegal)',
+                        time: '5 Pos / 8–10 Jam',
+                        terrain: 'Kawasan wisata Guci, hutan pinus & area terbuka.',
+                        water: ['Pos 4 (Kematus): Sumber air melimpah dengan kran air, WC, dan musala.']
+                    },
+                    {
+                        name: 'Jalur Baturraden / Baturraden Lestari',
+                        time: '6–8 Pos',
+                        terrain: 'Jalur panjang melintasi hutan hujan tropis lebat.',
+                        water: ['Sintok (setelah Pos 2)', 'Pos 4 (Katik): Stabil', 'Pos 7: Musiman']
+                    },
+                    {
+                        name: 'Jalur Kaliwadas (Brebes)',
+                        time: '5 Pos',
+                        terrain: 'Jalan setapak tanah perkebunan dan hutan pegunungan yang tenang.',
+                        water: ['Sebelum Tuk Suci & Pos 4: Aliran sungai mata air lancar walau kemarau.']
+                    }
+                ],
+                notes: 'Manajemen air di Gunung Slamet sangat krusial karena ketersediaan air antardistrik pos cukup jauh.'
+            },
+            {
+                id: 'rinjani',
+                name: 'Gunung Rinjani',
+                height: 3726,
+                region: 'NTB',
+                priceRange: 'Mulai dari Rp 20.000 (Lokal) / Paket Booking',
+                waterSummary: 'MELIMPAH DI POS 2 & DANAU',
+                routes: [
+                    {
+                        name: 'Jalur Sembalun (Lombok)',
+                        time: '2 Hari (Pelawangan)',
+                        terrain: 'Savana terbuka terik dilanjutkan tanjakan terjal Bukit Penyesalan.',
+                        water: ['Pos 2 (Tengengean): Sumber mata air utama terakhir sebelum Pelawangan.']
+                    },
+                    {
+                        name: 'Jalur Senaru (Lombok)',
+                        time: '2 Hari',
+                        terrain: 'Melintasi kawasan hutan hujan tropis yang lebat dan rimbun.',
+                        water: ['Pos 2 (Montong Satas) & Pos 3: Terdapat mata air jernih.']
+                    }
+                ],
+                notes: 'Air melimpah juga tersedia di area Danau Segara Anak & Aik Kalak.'
+            }
+        ];
+
+        const CITIES = ["MADIUN (Default)", "Surabaya", "Solo", "Semarang", "Yogyakarta", "Malang", "Kediri"];
+
+        document.addEventListener("DOMContentLoaded", () => {
+            lucide.createIcons();
+            initCanvas();
+            populateDropdowns();
+            renderDirectory();
+            
+            const dateInput = document.getElementById('hikingDate');
+            if (dateInput) {
+                dateInput.valueAsDate = new Date();
+            }
+
+            const savedCreatorPhoto = localStorage.getItem('jelajahYukCreatorPhoto');
+            if (savedCreatorPhoto) {
+                document.getElementById('creatorPhotoPreview').src = savedCreatorPhoto;
+            }
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => {
+                t.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-btn').forEach(b => {
+                b.classList.remove('bg-forest-800', 'text-amber-gold', 'border', 'border-amber-gold/30');
+                b.classList.add('text-slate-300');
+            });
+
+            const target = document.getElementById(`tab-${tabId}`);
+            if (target) {
+                target.classList.remove('active');
+                void target.offsetWidth;
+                target.classList.add('active');
+            }
+
+            const activeNav = document.getElementById(`nav-${tabId}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-forest-800', 'text-amber-gold', 'border', 'border-amber-gold/30');
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function populateDropdowns() {
+            const mtnSelect = document.getElementById('selectedMountain');
+            if (mtnSelect) {
+                mtnSelect.innerHTML = MASTER_GUNUNG.map(m => `<option value="${m.id}">${m.name} (${m.height} mdpl)</option>`).join('');
+                handleMountainSelection();
+            }
+
+            const citySelect = document.getElementById('originCity');
+            if (citySelect) {
+                citySelect.innerHTML = CITIES.map(c => `<option value="${c}">${c}</option>`).join('');
+            }
+        }
+
+        function handleMountainSelection() {
+            const mtnId = document.getElementById('selectedMountain').value;
+            const mtn = MASTER_GUNUNG.find(m => m.id === mtnId);
+            const routeSelect = document.getElementById('selectedRoute');
+
+            if (mtn && mtn.routes && routeSelect) {
+                routeSelect.innerHTML = mtn.routes.map((r, idx) => `<option value="${idx}">${r.name}</option>`).join('');
+            }
+        }
+
+        function handleModeChange() {
+            const mode = document.getElementById('hikingMode').value;
+            const input = document.getElementById('groupCount');
+            if (mode === 'solo') {
+                input.value = 1;
+                input.disabled = true;
+            } else {
+                input.disabled = false;
+                if (parseInt(input.value) < 2) input.value = 2;
+            }
+        }
+
+        function goToStep(step) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.add('hidden'));
+            const target = document.getElementById(`wizard-step-${step}`);
+            if (target) {
+                target.classList.remove('hidden');
+                target.style.animation = 'none';
+                void target.offsetWidth;
+                target.style.animation = '';
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function calculateCountdown(dateString) {
+            if (!dateString) return { text: "H-0 Hari", days: 0 };
+            const targetDate = new Date(dateString);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            targetDate.setHours(0,0,0,0);
+
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays < 0) {
+                return { text: `Lewat ${Math.abs(diffDays)} Hari`, days: diffDays };
+            } else if (diffDays === 0) {
+                return { text: "Hari Ini (H-0)", days: 0 };
+            } else if (diffDays >= 30) {
+                const months = Math.floor(diffDays / 30);
+                const days = diffDays % 30;
+                const txt = days > 0 ? `H-${months} Bulan ${days} Hari` : `H-${months} Bulan`;
+                return { text: txt, days: diffDays };
+            } else {
+                return { text: `H-${diffDays} Hari`, days: diffDays };
+            }
+        }
+
+        /* Kalkulasi Ukuran Tas Ideal dari TB, BB, dan Durasi Pendakian */
+        function calculateIdealBagSize(height, weight, duration) {
+            let bagTitle = "";
+            let bagNote = "";
+
+            if (duration === 'tektok') {
+                if (height < 165 || weight < 55) {
+                    bagTitle = "Hydropack 5-12L";
+                    bagNote = `Rekomendasi Postur TB ${height}cm / BB ${weight}kg (Ringan & Ringkas)`;
+                } else {
+                    bagTitle = "Daypack 15-25L";
+                    bagNote = `Rekomendasi Postur TB ${height}cm / BB ${weight}kg (Tektok Ideal)`;
+                }
+            } else {
+                if (height < 165 && weight < 60) {
+                    bagTitle = "Carrier 35-45L";
+                    bagNote = `Rekomendasi Postur TB ${height}cm / BB ${weight}kg (Proposional & Ringan)`;
+                } else if (height > 175 || weight > 75) {
+                    bagTitle = "Carrier 60-75L";
+                    bagNote = `Rekomendasi Postur TB ${height}cm / BB ${weight}kg (Kapasitas Besar)`;
+                } else {
+                    bagTitle = "Carrier 45-60L";
+                    bagNote = `Rekomendasi Postur TB ${height}cm / BB ${weight}kg (Ukuran Standar Ergonomis)`;
+                }
+            }
+
+            return { title: bagTitle, note: bagNote };
+        }
+
+        /* Generasi Latihan Fisik Sesuai Hitung Mundur Hari Keberangkatan */
+        function renderPhysicalWorkoutPlan(daysLeft) {
+            const container = document.getElementById('workoutScheduleContainer');
+            const summary = document.getElementById('workoutSummaryText');
+            const badge = document.getElementById('workoutBadge');
+
+            if (!container) return;
+
+            let routines = [];
+
+            if (daysLeft > 7) {
+                badge.innerText = `PHASE: PERSATUAN FISIK (H-${daysLeft})`;
+                summary.innerText = "Anda memiliki waktu optimal untuk melatih otot kaki dan daya tahan kardiovaskular secara bertahap.";
+                routines = [
+                    { time: "H-14 s/d H-10", activity: "Jogging 30 Menit / Latihan Stairs Climbing (3-4x Seminggu)" },
+                    { time: "H-9 s/d H-5", activity: "Squat (3x20), Lunge, & Core Workouts + Jogging Ringan" },
+                    { time: "H-4 s/d H-2", activity: "Peregangan / Flexibility & Jalan Santai dengan Ransel Ringan" },
+                    { time: "H-1", activity: "Istirahat Total (Rest Day), Tidur Cukup, & Carbo-loading Ringan" }
+                ];
+            } else if (daysLeft >= 3) {
+                badge.innerText = `PHASE: PERSIAPAN INTENSIF (H-${daysLeft})`;
+                summary.innerText = "Waktu tersisa tergolong singkat. Fokus pada pemeliharaan stamina dan peregangan persendian.";
+                routines = [
+                    { time: "H-5 s/d H-3", activity: "Jogging Ringan 15-20 Menit + Calf Raises & Leg Extension" },
+                    { time: "H-2", activity: "Dynamic Stretching & Pengecekan Persendian Kaki" },
+                    { time: "H-1", activity: "Rest Total, Penuhi Kebutuhan Cairan (Hydration), & Cukup Tidur" }
+                ];
+            } else if (daysLeft >= 1) {
+                badge.innerText = `PHASE: PEMULIHAN & ENERGI (H-${daysLeft})`;
+                summary.innerText = "Pendakian sudah di depan mata. Hindari olahraga berat yang dapat memicu cedera atau asam laktat tinggi.";
+                routines = [
+                    { time: "Hari Ini / H-1", activity: "Stretching Ringan 10 Menit & Istirahat Total Cukup (Min. 8 Jam)" },
+                    { time: "Persiapan", activity: "Konsumsi Makanan Berkarbohidrat Kompleks & Air Mineral 2L+" }
+                ];
+            } else {
+                badge.innerText = "HARI H / H-0 EXPOSITION";
+                summary.innerText = "Hari Keberangkatan! Pastikan tubuh fit, terhidrasi, dan melakukan pemanasan sebelum menapak rute.";
+                routines = [
+                    { time: "Sebelum Pendakian", activity: "Pemanasan / Dynamic Warming up selama 10 Menit di Basecamp" },
+                    { time: "Awal Rute", activity: "Jaga ritme langkah perlahan dan hindari memaksakan tempo jalan" }
+                ];
+            }
+
+            container.innerHTML = routines.map(r => `
+                <div class="p-2.5 rounded-xl bg-forest-950 border border-forest-800 flex items-start space-x-3 text-xs">
+                    <span class="px-2 py-0.5 rounded bg-amber-gold/20 text-amber-gold font-bold text-[10px] whitespace-nowrap border border-amber-gold/30">${r.time}</span>
+                    <span class="text-slate-200 font-medium">${r.activity}</span>
+                </div>
+            `).join('');
+        }
+
+        /* Generasi Distribusi Logistik & Barang Kelompok Berdasarkan Anggota Tim */
+        function renderGroupEquipmentDistribution(count) {
+            const container = document.getElementById('groupEquipmentContainer');
+            const badge = document.getElementById('groupSizeBadge');
+            if (!container) return;
+
+            badge.innerText = `${count} Anggota Tim`;
+
+            let items = [];
+
+            if (count === 1) {
+                items = [
+                    { item: "Tenda Monodome / 1P Ultralight", count: "1 Unit", note: "Dibawa Sendiri" },
+                    { item: "Kompor Portable Ringan", count: "1 Unit", note: "Dibawa Sendiri" },
+                    { item: "Nesting / Cooking Set Small", count: "1 Set", note: "Dibawa Sendiri" },
+                    { item: "Gas Canister (230g)", count: "1 - 2 Kaleng", note: "Dibawa Sendiri" },
+                    { item: "P3K Personal", count: "1 Kit", note: "Dibawa Sendiri" }
+                ];
+            } else {
+                const tentCount = Math.ceil(count / 3);
+                const stoveCount = Math.ceil(count / 4);
+                const gasCount = Math.ceil(count * 1.5);
+                const nestingCount = Math.ceil(count / 3);
+
+                items = [
+                    { item: `Tenda Kapasitas 3-4 Orang`, count: `${tentCount} Unit`, note: `Di bagi ke ${Math.min(tentCount, count)} Anggota` },
+                    { item: `Kompor Portable & Windshield`, count: `${stoveCount} Set`, note: "Tim Masak / Logistik" },
+                    { item: `Nesting / Cooking Set`, count: `${nestingCount} Set`, note: "Tim Masak" },
+                    { item: `Gas Canister / Hi-Cook`, count: `${gasCount} Tabung`, note: "Disebar di beberapa carrier" },
+                    { item: `Flysheet tambahan (3x4m)`, count: `${Math.ceil(count / 4)} Unit`, note: "Shelter / Dapur" },
+                    { item: `P3K Kelompok & Obat Darurat`, count: "1 Kit Lengkap", note: "Anggota Leader / Sweeper" },
+                    { item: `Trash Bag & Plastik Limbah`, count: `${Math.ceil(count / 2)} Pcs`, note: "Wajib Bawa Sampah Turun" }
+                ];
+            }
+
+            container.innerHTML = items.map(i => `
+                <div class="p-2.5 rounded-xl bg-forest-950 border border-forest-800 flex items-center justify-between text-xs">
+                    <div>
+                        <div class="text-white font-bold">${i.item}</div>
+                        <div class="text-[10px] text-forest-muted">${i.note}</div>
+                    </div>
+                    <span class="px-2.5 py-1 rounded bg-forest-800 text-amber-gold font-bold text-[11px] border border-amber-gold/20">${i.count}</span>
+                </div>
+            `).join('');
+        }
+
+        function calculateAndShowReport() {
+            const mtnSelect = document.getElementById('selectedMountain');
+            const routeSelect = document.getElementById('selectedRoute');
+            if (!mtnSelect || !routeSelect) return;
+
+            const mtnId = mtnSelect.value;
+            const routeIdx = parseInt(routeSelect.value) || 0;
+            const mtn = MASTER_GUNUNG.find(m => m.id === mtnId) || MASTER_GUNUNG[0];
+            const route = mtn.routes[routeIdx] || mtn.routes[0];
+            const duration = document.getElementById('hikingDuration').value;
+            const hikingDateVal = document.getElementById('hikingDate').value;
+            const groupCountVal = parseInt(document.getElementById('groupCount').value) || 1;
+
+            const userHeightVal = parseInt(document.getElementById('userHeight').value) || 170;
+            const userWeightVal = parseInt(document.getElementById('userWeight').value) || 65;
+
+            document.getElementById('reportTotalSimaksi').innerText = `${mtn.priceRange}`;
+            document.getElementById('reportBasecampName').innerText = `${mtn.name}`;
+            document.getElementById('reportRouteDetail').innerText = `${route.name}`;
+
+            const countdownObj = calculateCountdown(hikingDateVal);
+            document.getElementById('reportCountdown').innerText = countdownObj.text;
+            document.getElementById('reportCountdownSub').innerText = hikingDateVal ? `Tanggal: ${hikingDateVal}` : "Tanggal belum diatur";
+
+            /* Kalkulasi Ukuran Tas Ideal Sesuai Input TB, BB, dan Durasi */
+            const idealBag = calculateIdealBagSize(userHeightVal, userWeightVal, duration);
+            document.getElementById('reportCarrierSize').innerText = idealBag.title;
+            document.getElementById('reportCarrierNote').innerText = idealBag.note;
+
+            document.getElementById('reportTerrainText').innerText = route.terrain;
+
+            const waterContainer = document.getElementById('reportWaterList');
+            waterContainer.innerHTML = route.water.map(w => `<div class="p-2 rounded bg-forest-950 border border-forest-800 text-slate-200">• ${w}</div>`).join('');
+
+            renderPhysicalWorkoutPlan(countdownObj.days);
+            renderGroupEquipmentDistribution(groupCountVal);
+
+            renderChecklist(duration);
+            goToStep(3);
+        }
+
+        function triggerDirectReport() {
+            switchTab('wizard');
+            goToStep(3);
+            calculateAndShowReport();
+        }
+
+        function renderChecklist(duration) {
+            const container = document.getElementById('checklistContainer');
+            let items = [
+                { name: "Tas Carrier / Ransel Hiker", cat: "Utama" },
+                { name: "Tenda Waterproof & Frame Alumunium", cat: "Utama" },
+                { name: "Sleeping Bag (Comfort rating < 10°C)", cat: "Utama" },
+                { name: "Matras / Inflatable Pad", cat: "Utama" },
+                { name: "Nesting / Cooking Set & Kompor Portable", cat: "Logistik" },
+                { name: "Tabung Gas Hi-Cook / Canister", cat: "Logistik" }
+            ];
+
+            if (duration === 'tektok') {
+                items = [
+                    { name: "Daypack 15-25L Ultralight", cat: "Utama" },
+                    { name: "Jas Hujan / Ponco Ringan", cat: "Utama" },
+                    { name: "Headlamp & Baterai Cadangan", cat: "Utama" },
+                    { name: "Water Bladder 2L", cat: "Logistik" }
+                ];
+            }
+
+            container.innerHTML = items.map((item) => `
+                <label class="flex items-center justify-between p-2.5 rounded-xl bg-gradient-to-r from-forest-950/90 to-forest-800/70 border border-forest-800 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-gold/30">
+                    <div class="flex items-center space-x-2.5">
+                        <input type="checkbox" class="w-3.5 h-3.5 accent-amber-gold rounded" onchange="updateChecklistProgress()">
+                        <span class="text-xs text-slate-200 font-medium">${item.name}</span>
+                    </div>
+                    <span class="text-[9px] font-bold text-amber-gold/70 uppercase px-2 py-0.5 rounded bg-forest-900 border border-amber-gold/20">${item.cat}</span>
+                </label>
+            `).join('');
+            updateChecklistProgress();
+        }
+
+        function updateChecklistProgress() {
+            const boxes = [...document.querySelectorAll('#checklistContainer input[type="checkbox"]')];
+            const done = boxes.filter(box => box.checked).length;
+            const percent = boxes.length ? Math.round((done / boxes.length) * 100) : 0;
+            const progressText = document.getElementById('checklistProgressText');
+            if (progressText) progressText.textContent = `${percent}% Selesai`;
+        }
+
+        function renderDirectory() {
+            const grid = document.getElementById('directoryGrid');
+            if (!grid) return;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = MASTER_GUNUNG.filter(m => m.name.toLowerCase().includes(search));
+
+            grid.innerHTML = filtered.map((m, index) => `
+                <div onclick="openModal('${m.id}')" style="animation-delay:${Math.min(index * 70, 420)}ms" class="inner-box-interactive p-5 space-y-3 stagger-in">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-bold uppercase text-slate-400">${m.region}</span>
+                        <span class="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border bg-amber-gold/20 text-amber-gold border-amber-gold/30">${m.waterSummary}</span>
+                    </div>
+                    <div>
+                        <div class="text-lg font-bold text-white">${m.name}</div>
+                        <div class="text-xs text-forest-muted">${m.routes.length} Jalur Pendakian Resmi</div>
+                    </div>
+                    <div class="flex items-center justify-between pt-2 border-t border-forest-800 text-xs">
+                        <span class="text-amber-gold font-bold">▲ ${m.height} MDPL</span>
+                        <span class="text-slate-300 font-semibold">${m.priceRange}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openModal(mtnId) {
+            const m = MASTER_GUNUNG.find(item => item.id === mtnId);
+            if (!m) return;
+
+            document.getElementById('modalMtnTitle').innerText = m.name;
+            document.getElementById('modalMtnSub').innerText = `${m.height} MDPL | ${m.region} | ${m.priceRange}`;
+
+            const body = document.getElementById('modalMtnBody');
+            body.innerHTML = `
+                <div class="p-3 rounded bg-forest-950 border border-amber-gold/20 text-slate-300 italic">
+                    "${m.notes}"
+                </div>
+
+                <div class="space-y-4 pt-2">
+                    <h4 class="font-bold text-amber-gold uppercase tracking-wider text-xs">Jalur Pendakian & Titik Air:</h4>
+                    ${m.routes.map(r => `
+                        <div class="p-4 rounded-xl bg-forest-950 border border-forest-800 space-y-2">
+                            <div class="font-bold text-white text-sm">${r.name}</div>
+                            <div class="text-forest-muted font-semibold text-[11px]">Estimasi: ${r.time}</div>
+                            <p class="text-slate-300 text-xs leading-relaxed">${r.terrain}</p>
+                            <div class="pt-2 border-t border-forest-800/80 text-xs space-y-1">
+                                <span class="font-bold text-amber-gold">Mata Air:</span>
+                                ${r.water.map(w => `<div class="text-slate-300">• ${w}</div>`).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            const modal = document.getElementById('mountainModal');
+            const panel = document.getElementById('mountainModalPanel');
+            modal.classList.remove('hidden');
+            panel.classList.remove('modal-panel-in');
+            void panel.offsetWidth;
+            panel.classList.add('modal-panel-in');
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('mountainModal');
+            const panel = document.getElementById('mountainModalPanel');
+            panel.classList.remove('modal-panel-in');
+            modal.classList.add('hidden');
+        }
+
+        function handleCreatorPhoto(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file || !file.type.startsWith('image/')) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = document.getElementById('creatorPhotoPreview');
+                preview.src = e.target.result;
+                try {
+                    localStorage.setItem('jelajahYukCreatorPhoto', e.target.result);
+                } catch (err) {
+                    console.warn('Foto tidak dapat disimpan di local storage:', err);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function openGoogleMaps() {
+            window.open('https://maps.google.com', '_blank');
+        }
+
+        function initCanvas() {
+            const canvas = document.getElementById('particleCanvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = Array.from({ length: 35 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                r: Math.random() * 1.5 + 0.5,
+                sy: -Math.random() * 0.3 - 0.1
+            }));
+
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.y += p.sy;
+                    if (p.y < 0) p.y = canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,183,3,0.3)';
+                    ctx.fill();
+                });
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+    </script>
+</body>
+</html>
